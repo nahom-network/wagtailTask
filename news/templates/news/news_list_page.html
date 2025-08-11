@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags %}
+
+{% block content %}
+<section class="news-list">
+    <div class="container">
+        <header class="news-hero">
+            <h1 class="news-title">{{ page.title }}</h1>
+            {% if page.search_description %}
+                <p class="news-subtitle">{{ page.search_description }}</p>
+            {% endif %}
+        </header>
+
+        {% if articles %}
+            <div class="articles-grid" role="list">
+                {% for article in articles %}
+                    <article class="article-card" role="listitem">
+                        <h2 class="article-title">
+                            <a href="{{ article.source_url }}" target="_blank" rel="noopener noreferrer">{{ article.title }}</a>
+                        </h2>
+                        {% if article.summary %}
+                            <p class="article-summary">{{ article.summary }}</p>
+                        {% endif %}
+                        <div class="article-meta">
+                            <time datetime="{{ article.publication_date|date:'Y-m-d' }}">{{ article.publication_date|date:"M d, Y" }}</time>
+                        </div>
+                        <div class="article-actions">
+                            <a class="btn btn-primary" href="{{ article.source_url }}" target="_blank" rel="noopener noreferrer">Read source</a>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+            {% if is_paginated %}
+            <nav class="pagination" role="navigation" aria-label="Pagination">
+                <ul class="pagination-list">
+                    {# Previous #}
+                    {% if page_obj.has_previous %}
+                        <li><a class="page-link prev" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous page">« Prev</a></li>
+                    {% else %}
+                        <li><span class="page-link disabled" aria-disabled="true">« Prev</span></li>
+                    {% endif %}
+
+                    {# Page numbers: show window around current #}
+                    {% for num in paginator.page_range %}
+                        {% if num == page_obj.number %}
+                            <li><span class="page-link current" aria-current="page">{{ num }}</span></li>
+                        {% elif num >= page_obj.number|add:-2 and num <= page_obj.number|add:2 %}
+                            <li><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                        {% elif num == 1 or num == paginator.num_pages %}
+                            <li><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                        {% elif num == page_obj.number|add:-3 or num == page_obj.number|add:3 %}
+                            <li><span class="page-ellipsis" aria-hidden="true">…</span></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {# Next #}
+                    {% if page_obj.has_next %}
+                        <li><a class="page-link next" href="?page={{ page_obj.next_page_number }}" aria-label="Next page">Next »</a></li>
+                    {% else %}
+                        <li><span class="page-link disabled" aria-disabled="true">Next »</span></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        {% else %}
+            <p class="empty-state">No articles yet. Check back soon.</p>
+        {% endif %}
+    </div>
+    
+</section>
+{% endblock %}
